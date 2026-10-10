@@ -1,0 +1,28 @@
+name: Lean CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: leanprover/lean-action@v1
+
+  axiom-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: leanprover/lean-action@v1
+      - name: Axiom audit (main theorem)
+        run: |
+          set -euo pipefail
+          out="$(lake env lean Axioms.lean 2>&1)"
+          echo "$out"
+          echo "$out" | grep -q "depends on axioms: \[propext, Classical.choice, Quot.sound\]"
